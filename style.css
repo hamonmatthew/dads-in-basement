@@ -40,3 +40,36 @@
 .dice-stage{perspective:500px;transform-style:preserve-3d}
 .die-face{transform-style:preserve-3d}
 .face-5 i:nth-child(5){grid-area:2/2}
+
+/* v5: molded-die treatment. Faces overlap by 0.8px to close visible seams;
+   no filters or opacity on 3D ancestors, which would flatten the cube. */
+.dice-stage{--die-size:72px;perspective:620px;overflow:visible}
+.die-cube{width:72px;height:72px;transform-style:preserve-3d;filter:none!important}
+.die-face{
+ inset:-.45px; padding:11px; border:0; border-radius:5px;
+ background:linear-gradient(138deg,#363636 0%,#222 24%,#141414 66%,#090909 100%);
+ box-shadow:inset 2px 2px 2px #ffffff25,inset -2px -2px 3px #000b,
+            inset 0 0 0 1px #333;
+ -webkit-backface-visibility:hidden;backface-visibility:hidden;
+}
+.die-face::after{
+ content:"";position:absolute;inset:1px;border-radius:4px;
+ box-shadow:inset 1px 1px 1px #ffffff12,inset -1px -1px 1px #0008;
+ pointer-events:none;
+}
+.die-face i{
+ width:11px;height:11px;background:radial-gradient(circle at 35% 32%,#fff 0%,#fffdf5 56%,#d7d4c9 100%);
+ box-shadow:inset 1px 1px 2px #b5b1a9,0 0 0 1px #050505b0,0 1px 1px #0007;
+}
+.face-1{transform:translateZ(36px)}
+.face-2{transform:rotateY(90deg) translateZ(36px)}
+.face-3{transform:rotateX(-90deg) translateZ(36px)}
+.face-4{transform:rotateX(90deg) translateZ(36px)}
+.face-5{transform:rotateY(-90deg) translateZ(36px)}
+.face-6{transform:rotateY(180deg) translateZ(36px)}
+/* Five pips: four corners and a center, without overlapping dots. */
+.face-5 i:nth-child(1){grid-area:1/1}
+.face-5 i:nth-child(2){grid-area:1/3}
+.face-5 i:nth-child(3){grid-area:3/1}
+.face-5 i:nth-child(4){grid-area:3/3}
+.face-5 i:nth-child(5){grid-area:2/2}
