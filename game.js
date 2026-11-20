@@ -53,7 +53,7 @@ function render(){
  $("rollBtn").disabled=rolling||modalOpen||g.phase!=="playing";
  $("abilityBtn").disabled=rolling||modalOpen||cur().lastAbilityRound===g.round;
  $("drawBtn").disabled=rolling||modalOpen;
- $("die").textContent=g.die?symbols[g.die-1]:"⚄";
+ $("die").setAttribute("aria-label",g.die?`Die showing ${g.die}`:"Die ready to roll");
  $("turnMessage").textContent=g.message;
  $("spaceLabel").textContent=cur().route?D.branches[cur().route][cur().branchIndex].title:(cur().position===0?"START — THE HOUSE":D.tiles[cur().position-1]?.title||"BASEMENT");
  $("scoreRows").innerHTML=g.players.map((p,i)=>`<div class="score-row ${i===g.current?"active":""}"><img src="assets/pawn-${p.name.toLowerCase()}.png" alt=""><strong>${escapeHTML(p.name)}</strong><span>${p.evidence.length}/4 clues · ${p.nerve} nerve</span><span class="points">${p.score} pts</span></div>`).join("");
@@ -181,17 +181,23 @@ function roll(){
  const die=1+rand(6),movement=Math.max(1,Math.min(8,die+g.adjust));
  cur().nerve-=Math.abs(g.adjust);g.adjust=0;g.clock++;
  if(g.clock>=12){g.clock=0;g.heat++;}
- $("die").classList.add("rolling");sound("dice_roll");
- let ticks=0;
- const timer=setInterval(()=>{
-  $("die").textContent=symbols[rand(6)];ticks++;
-  if(ticks>=9){
-   clearInterval(timer);$("die").classList.remove("rolling");
-   g.die=die;rolling=false;g.message=`Rolled ${die}. Move ${movement} spaces.`;
-   if(g.heat>=6){meltdown();return;}
-   move(movement);render();
-  }
- },75);
+ const cube=$("die");
+ cube.classList.remove("rolling");
+ cube.style.transition="none";
+ cube.style.transform="translateY(-5px) rotateX(-18deg) rotateY(0deg)";
+ void cube.offsetWidth; // Restart the tumble on repeated rolls.
+ cube.classList.add("rolling");sound("dice_roll");
+ setTimeout(()=>{
+  cube.classList.remove("rolling");
+  // Each orientation presents the matching pip face toward the player.
+  const orientations={1:[0,0],2:[0,-90],3:[90,0],4:[-90,0],5:[0,90],6:[0,180]};
+  const [x,y]=orientations[die];
+  cube.style.transform=`translateY(-5px) rotateX(${x}deg) rotateY(${y}deg)`;
+  cube.style.transition="transform 220ms ease-out";
+  g.die=die;rolling=false;g.message=`Rolled ${die}. Move ${movement} spaces.`;
+  if(g.heat>=6){meltdown();return;}
+  move(movement);render();
+ },950);
  render();
 }
 function useAbility(){
