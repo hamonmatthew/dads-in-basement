@@ -3,7 +3,7 @@
 /* Web v2: tactile, six-faced black die with a moving ground shadow. */
 .dice-stage{--die-size:70px;position:relative;flex:0 0 110px;height:114px;display:grid;place-items:center;perspective:520px;isolation:isolate}
 .dice-shadow{position:absolute;bottom:8px;left:50%;width:75px;height:19px;transform:translateX(-50%);border-radius:50%;background:rgba(16,12,10,.48);filter:blur(8px);transition:transform .5s ease,opacity .5s ease}
-.die-cube{width:var(--die-size);height:var(--die-size);position:relative;transform-style:preserve-3d;transform:translateY(-5px) rotateX(-18deg) rotateY(0deg);transition:transform 850ms cubic-bezier(.2,.7,.2,1);filter:drop-shadow(5px 8px 5px rgba(0,0,0,.35))}
+.die-cube{width:var(--die-size);height:var(--die-size);position:relative;transform-style:preserve-3d;transform:translateY(-5px) rotateX(-18deg) rotateY(0deg);transition:transform 850ms cubic-bezier(.2,.7,.2,1);}
 .die-face{position:absolute;inset:0;border:2px solid #454545;border-radius:11px;background:linear-gradient(135deg,#353535 0%,#141414 55%,#050505 100%);box-shadow:inset 3px 3px 7px #ffffff1b,inset -4px -4px 7px #0009;backface-visibility:hidden;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:11px}
 .die-face i{width:12px;height:12px;border-radius:50%;background:#fff9ec;box-shadow:inset 1px 1px 2px #b3a99a,0 1px 2px #0008;place-self:center;grid-area:2/2}
 .face-1{transform:translateZ(35px)}
@@ -26,3 +26,10 @@
 @keyframes die-tumble{0%{transform:translateY(-5px) rotateX(-18deg) rotateY(0deg) rotateZ(0deg)}25%{transform:translateY(-37px) rotateX(310deg) rotateY(185deg) rotateZ(40deg)}55%{transform:translateY(-56px) rotateX(590deg) rotateY(435deg) rotateZ(-30deg)}80%{transform:translateY(-18px) rotateX(755deg) rotateY(635deg) rotateZ(12deg)}100%{transform:translateY(-5px) rotateX(1080deg) rotateY(1080deg) rotateZ(0deg)}}
 @keyframes shadow-pulse{0%,100%{transform:translateX(-50%) scale(1);opacity:.75}55%{transform:translateX(-50%) scale(.55);opacity:.22}}
 @media(prefers-reduced-motion:reduce){.die-cube.rolling{animation:none!important}.dice-stage:has(.rolling) .dice-shadow{animation:none!important}}
+
+/* v3 fix: filters on a preserve-3d element flatten its faces into one card.
+   Keep the cube and all its ancestors free of filter, opacity < 1, and overflow clipping. */
+.dice-stage{transform-style:preserve-3d;overflow:visible}
+.die-cube{transform-style:preserve-3d;filter:none!important;will-change:transform}
+.die-face{transform-style:preserve-3d;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.dice-shadow{pointer-events:none}
