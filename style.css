@@ -33,3 +33,10 @@
 .die-cube{transform-style:preserve-3d;filter:none!important;will-change:transform}
 .die-face{transform-style:preserve-3d;-webkit-backface-visibility:hidden;backface-visibility:hidden}
 .dice-shadow{pointer-events:none}
+
+/* v4: independent cube faces, distinct ground shadow, JS-driven landing face */
+.die-cube{transform:translateY(-5px) rotateX(-18deg) rotateY(-22deg);transition:none!important;animation:none!important;filter:none!important}
+.die-cube.rolling{animation:none!important}
+.dice-stage{perspective:500px;transform-style:preserve-3d}
+.die-face{transform-style:preserve-3d}
+.face-5 i:nth-child(5){grid-area:2/2}

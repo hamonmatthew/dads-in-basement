@@ -182,22 +182,33 @@ function roll(){
  cur().nerve-=Math.abs(g.adjust);g.adjust=0;g.clock++;
  if(g.clock>=12){g.clock=0;g.heat++;}
  const cube=$("die");
- cube.classList.remove("rolling");
+ sound("dice_roll");
+ // Animate directly to the rolled face, rather than ending every spin on face 1.
+ const orientations={1:[0,0],2:[0,-90],3:[90,0],4:[-90,0],5:[0,90],6:[0,180]};
+ const [x,y]=orientations[die];
+ const endTransform=`translateY(-5px) rotateX(${x+720}deg) rotateY(${y+720}deg)`;
  cube.style.transition="none";
- cube.style.transform="translateY(-5px) rotateX(-18deg) rotateY(0deg)";
- void cube.offsetWidth; // Restart the tumble on repeated rolls.
- cube.classList.add("rolling");sound("dice_roll");
- setTimeout(()=>{
-  cube.classList.remove("rolling");
-  // Each orientation presents the matching pip face toward the player.
-  const orientations={1:[0,0],2:[0,-90],3:[90,0],4:[-90,0],5:[0,90],6:[0,180]};
-  const [x,y]=orientations[die];
+ const startTransform=cube.style.transform||"translateY(-5px) rotateX(-18deg) rotateY(-22deg)";
+ const reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+ const animation=cube.animate([
+  {transform:startTransform,offset:0},
+  {transform:`translateY(-44px) rotateX(${x+270}deg) rotateY(${y+270}deg)`,offset:.42},
+  {transform:`translateY(-24px) rotateX(${x+550}deg) rotateY(${y+550}deg)`,offset:.78},
+  {transform:endTransform,offset:1}
+ ],{duration:reduce?0:1050,easing:"cubic-bezier(.18,.7,.22,1)",fill:"forwards"});
+ $("diceShadow").animate([
+  {transform:"translateX(-50%) scale(1)",opacity:.7},
+  {transform:"translateX(-50%) scale(.5)",opacity:.2,offset:.45},
+  {transform:"translateX(-50%) scale(1)",opacity:.7}
+ ],{duration:reduce?0:1050,easing:"ease-in-out"});
+ animation.finished.then(()=>{
   cube.style.transform=`translateY(-5px) rotateX(${x}deg) rotateY(${y}deg)`;
-  cube.style.transition="transform 220ms ease-out";
+  animation.cancel();
   g.die=die;rolling=false;g.message=`Rolled ${die}. Move ${movement} spaces.`;
   if(g.heat>=6){meltdown();return;}
   move(movement);render();
- },950);
+ }).catch(()=>{rolling=false;});
+
  render();
 }
 function useAbility(){
